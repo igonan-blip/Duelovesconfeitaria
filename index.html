@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Due Loves Confeitaria | Cardápio Digital</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4b2c20;
+            --secondary: #d4af37;
+            --bg: #fdfbf7;
+            --text: #333;
+            --white: #fff;
+            --success: #25D366;
+            --error: #c00;
+            --highlight: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 100px; }
+
+        /* HEADER & BANNER */
+        header {
+            background-color: var(--primary); color: var(--secondary);
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .banner-container {
+            width: 100%;
+            background-color: var(--primary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .banner-img {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        /* CART ICON */
+        .cart-icon-top { position: relative; cursor: pointer; font-size: 1.5rem; }
+        .cart-count {
+            position: absolute; top: -8px; right: -8px;
+            background: var(--secondary); color: var(--primary);
+            font-size: 0.7rem; font-weight: bold; border-radius: 50%;
+            width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* MENU E CARDS */
+        .category-title {
+            color: var(--primary); font-size: 1.2rem; margin: 25px 15px 10px;
+            border-bottom: 2px solid var(--secondary); display: inline-block; padding-bottom: 5px;
+            text-transform: uppercase; font-weight: bold;
+        }
+
+        .menu-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding: 0 15px; }
+
+        .product-card {
+            background: var(--white); border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex;
+            justify-content: space-between; align-items: center;
+            border-left: 6px solid var(--secondary); position: relative;
+        }
+
+        .combo-highlight {
+            border: 2px solid var(--secondary);
+            background: #fff9eb;
+            grid-column: 1 / -1;
+        }
+        
+        .best-seller-badge {
+            position: absolute; top: -10px; right: 10px;
+            background: var(--highlight); color: #fff;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .product-info h3 { color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
+        .product-info p { font-size: 0.8rem; color: #666; margin-bottom: 8px; line-height: 1.2; }
+        .price { color: var(--primary); font-weight: 900; font-size: 1.1rem; }
+
+        .add-btn {
+            background-color: var(--primary); color: var(--secondary);
+            border: none; padding: 10px 15px; border-radius: 25px;
+            cursor: pointer; font-weight: bold; font-size: 0.85rem;
+        }
+
+        /* MODAIS */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: end;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 500px;
+            border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto;
+        }
+
+        /* SELEÇÃO DE SABORES */
+        .option-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .counter-controls { display: flex; align-items: center; gap: 15px; }
+        .counter-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary); background: #f0f0f0; color: var(--primary); cursor: pointer; font-weight: bold; }
+        
+        .radio-group { display: flex; gap: 10px; margin: 10px 0; }
+        .radio-label { flex: 1; border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+        .radio-label.selected { background-color: var(--primary); color: var(--secondary); font-weight: bold; border-color: var(--primary); }
+
+        /* CARRINHO FIXO */
+        .sticky-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: var(--primary); color: var(--white);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 1500;
+        }
+
+        .shipping-container { margin: 15px 0; text-align: center; }
+        .shipping-bar-bg { background: #eee; height: 10px; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .shipping-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.4s; }
+
+        .checkout-btn {
+            width: 100%; background: var(--success); color: white; border: none;
+            padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer;
+            margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+
+        .free-badge { background: var(--success); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; }
+        .hidden { display: none; }
+        .cart-item-detail { font-size: 0.75rem; color: #777; font-style: italic; display: block; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-weight: bold; letter-spacing: 1px;">DUE LOVES</div>
+        <div class="cart-icon-top" onclick="openCart()">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-count" id="cartCountTop">0</span>
+        </div>
+    </header>
+
+    <div class="banner-container">
+        <img src="https://socialmediaigor.wordpress.com/wp-content/uploads/2026/02/abertura-site.png" class="banner-img" alt="Due Loves Promoção">
+    </div>
+
+    <div id="menu-content"></div>
+
+    <div class="sticky-footer" id="stickyFooter" onclick="openCart()" style="display: none;">
+        <div>
+            <span id="footerCount">0</span> itens | <span id="footerTotal" style="font-weight: bold; color: var(--secondary);">R$ 0,00</span>
+        </div>
+        <div style="background: var(--secondary); color: var(--primary); padding: 5px 12px; border-radius: 5px; font-weight: bold; font-size: 0.8rem;">
+            CARRINHO <i class="fa-solid fa-chevron-up"></i>
+        </div>
+    </div>
+
+    <div class="modal" id="optionsModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                <h3 id="optionsTitle">Personalizar</h3>
+                <span style="cursor:pointer; font-size: 1.5rem;" onclick="closeModal('optionsModal')">&times;</span>
+            </div>
+            <div id="optionsBody"></div>
+            <button class="checkout-btn" style="background: var(--primary); color: var(--secondary);" onclick="confirmOptions()">
+                Adicionar ao Pedido
+            </button>
+        </div>
+    </div>
+
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <h3>Meu Carrinho</h3>
+                <span style="cursor:pointer; font-size: 1.5rem;" onclick="closeModal('cartModal')">&times;</span>
+            </div>
+            <div class="shipping-container">
+                <small id="shippingText" style="font-weight: bold; color: var(--primary);"></small>
+                <div class="shipping-bar-bg"><div class="shipping-bar-fill" id="shippingBar"></div></div>
+            </div>
+            <div id="cartItemsContainer" style="margin-top: 15px;"></div>
+            <div id="checkoutForm" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <input type="text" id="clientName" placeholder="Seu Nome" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <textarea id="clientAddress" placeholder="Endereço (Rua, Nº, Bairro)" rows="2" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                <select id="paymentMethod" onchange="toggleChange()" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="pix">PIX</option>
+                    <option value="cartao">Cartão</option>
+                    <option value="dinheiro">Dinheiro</option>
+                </select>
+                <input type="tel" id="changeValue" class="hidden" placeholder="Troco para quanto?" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; font-size: 1.1rem;">
+                    <span>Total:</span> <span id="summaryTotal">R$ 0,00</span>
+                </div>
+                <small id="deliveryTaxText" style="display:block; text-align:right; color: #666; margin-bottom: 10px;"></small>
+                <button class="checkout-btn" onclick="processCheckout()">ENVIAR NO WHATSAPP</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="upsellModal">
+        <div class="modal-content" style="text-align: center; padding-bottom: 30px;">
+            <div id="upsellBadgeArea"></div>
+            <i class="fa-solid fa-bottle-water" style="font-size: 3rem; color: #c00; margin-bottom: 10px;"></i>
+            <h3>Vai uma Coca-Cola geladinha?</h3>
+            <p id="upsellText" style="margin: 10px 0; color: #555;">Com a Coca você ganha <strong>Frete Grátis</strong>!</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="finishOrder()" style="flex:1; padding:12px; border:1px solid #ccc; border-radius:8px; background: none;">Não</button>
+                <button onclick="addUpsell()" style="flex:1; padding:12px; background: var(--primary); color: var(--secondary); border: none; border-radius: 8px; font-weight: bold;">Sim, adicionar!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuData = [
+            {
+                category: "PROMOÇÃO DO DIA",
+                items: [{ id: 100, name: "O SEU LANCHE PERFEITO", price: 45.00, desc: "1 Bolo Vulcão + 12 Salgados Assados + 1 Coca Lata. Frete Grátis!", isCombo: true }]
+            },
+            {
+                category: "Bolos Mini Vulcão",
+                items: [
+                    { id: 1, name: "Bolo Vulcão Brigadeiro", price: 20.00 },
+                    { id: 2, name: "Bolo Vulcão Leite Ninho", price: 20.00 },
+                    { id: 5, name: "Bolo Vulcão Cenoura c/ Brigadeiro", price: 20.00, isBestSeller: true }
+                ]
+            },
+            {
+                category: "Mini Salgados Assados",
+                items: [
+                    { id: 11, name: "Kit 6 Salgados", price: 12.00, isKit: true, limit: 6 },
+                    { id: 12, name: "Kit 12 Salgados", price: 20.00, isKit: true, limit: 12 }
+                ]
+            },
+            {
+                category: "Bebidas",
+                items: [
+                    { id: 14, name: "Coca Cola Lata", price: 7.00, isDrink: true },
+                    { id: 16, name: "Guaraná Lata", price: 7.00, isDrink: true }
+                ]
+            }
+        ];
+
+        let cart = [];
+        let tempItem = null;
+        const FREE_SHIPPING = 45.00;
+        const SHIPPING_FEE = 5.00;
+
+        function renderMenu() {
+            const container = document.getElementById('menu-content');
+            container.innerHTML = menuData.map(cat => `
+                <h2 class="category-title">${cat.category}</h2>
+                <div class="menu-container">
+                    ${cat.items.map(item => `
+                        <div class="product-card ${item.isCombo ? 'combo-highlight' : ''}">
+                            ${item.isBestSeller ? '<div class="best-seller-badge">MAIS PEDIDO</div>' : ''}
+                            <div class="product-info">
+                                <h3>${item.name}</h3>
+                                <p>${item.desc || ''}</p>
+                                <div class="price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+                            </div>
+                            <button class="add-btn" onclick='openOptions(${JSON.stringify(item)})'>ADICIONAR</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function openOptions(item) {
+            tempItem = { ...item, options: { flavors: {}, cake: 'Brigadeiro', variant: 'Normal' } };
+            const body = document.getElementById('optionsBody');
+            document.getElementById('optionsTitle').innerText = item.name;
+
+            if (item.isCombo) {
+                body.innerHTML = `
+                    <p>Sabor do Bolo:</p>
+                    <select id="selCake" style="width:100%; padding:10px; margin:10px 0 20px;">
+                        <option>Brigadeiro</option><option>Leite Ninho</option><option>Cenoura c/ Brigadeiro</option>
+                    </select>
+                    <p>Escolha 12 Salgados:</p>
+                    ${renderFlavors()}
+                    <p style="margin-top:15px;">Coca-Cola:</p>
+                    <div class="radio-group">
+                        <div class="radio-label selected" onclick="setVar(this, 'Normal')">Normal</div>
+                        <div class="radio-label" onclick="setVar(this, 'Zero')">Zero</div>
+                    </div>
+                `;
+            } else if (item.isKit) {
+                body.innerHTML = `<p>Escolha ${item.limit} sabores:</p>${renderFlavors(item.limit)}`;
+            } else if (item.isDrink) {
+                body.innerHTML = `<p>Escolha o tipo:</p><div class="radio-group">
+                    <div class="radio-label selected" onclick="setVar(this, 'Normal')">Normal</div>
+                    <div class="radio-label" onclick="setVar(this, 'Zero')">Zero</div>
+                </div>`;
+            } else {
+                addToCart(tempItem); return;
+            }
+            document.getElementById('optionsModal').classList.add('active');
+        }
+
+        function renderFlavors() {
+            return ['Frango', 'Presunto e Queijo', 'Salsicha'].map(s => `
+                <div class="option-row">
+                    <span>${s}</span>
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="updateFlavor('${s}', -1)">-</button>
+                        <span id="q-${s}">0</span>
+                        <button class="counter-btn" onclick="updateFlavor('${s}', 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateFlavor(s, delta) {
+            const limit = tempItem.limit || 12;
+            const currentTotal = Object.values(tempItem.options.flavors).reduce((a, b) => a + b, 0);
+            if (!tempItem.options.flavors[s]) tempItem.options.flavors[s] = 0;
+            if (delta > 0 && currentTotal >= limit) return;
+            if (delta < 0 && tempItem.options.flavors[s] <= 0) return;
+            tempItem.options.flavors[s] += delta;
+            document.getElementById(`q-${s}`).innerText = tempItem.options.flavors[s];
+        }
+
+        function setVar(el, val) {
+            document.querySelectorAll('.radio-label').forEach(l => l.classList.remove('selected'));
+            el.classList.add('selected');
+            tempItem.options.variant = val;
+        }
+
+        function confirmOptions() {
+            if (tempItem.isKit || tempItem.isCombo) {
+                const limit = tempItem.limit || 12;
+                const total = Object.values(tempItem.options.flavors).reduce((a, b) => a + b, 0);
+                if (total !== limit) { alert(`Escolha ${limit} salgados!`); return; }
+                if (tempItem.isCombo) tempItem.options.cake = document.getElementById('selCake').value;
+            }
+            addToCart(tempItem);
+            closeModal('optionsModal');
+        }
+
+        function addToCart(item) {
+            cart.push(JSON.parse(JSON.stringify(item)));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const subtotal = cart.reduce((acc, i) => acc + i.price, 0);
+            document.getElementById('cartCountTop').innerText = cart.length;
+            document.getElementById('footerTotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('footerCount').innerText = cart.length;
+            document.getElementById('stickyFooter').style.display = cart.length > 0 ? 'flex' : 'none';
+
+            const remaining = FREE_SHIPPING - subtotal;
+            document.getElementById('shippingBar').style.width = Math.min(100, (subtotal / FREE_SHIPPING) * 100) + '%';
+            document.getElementById('shippingText').innerText = subtotal >= FREE_SHIPPING ? "FRETE GRÁTIS!" : `Faltam R$ ${remaining.toFixed(2)} para Frete Grátis`;
+
+            const delivery = subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
+            document.getElementById('summaryTotal').innerText = `R$ ${(subtotal + delivery).toFixed(2).replace('.', ',')}`;
+            document.getElementById('deliveryTaxText').innerText = delivery === 0 ? "Entrega: Grátis" : "Entrega: R$ 5,00";
+
+            document.getElementById('cartItemsContainer').innerHTML = cart.map((i, idx) => {
+                let details = "";
+                if (i.isCombo) details = `<span class="cart-item-detail">Bolo: ${i.options.cake} | Refri: ${i.options.variant}</span>`;
+                return `
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <div><strong>${i.name}</strong>${details}</div>
+                    <div style="color:red; cursor:pointer;" onclick="removeItem(${idx})"><i class="fa-solid fa-trash"></i></div>
+                </div>`;
+            }).join('');
+        }
+
+        function removeItem(idx) { cart.splice(idx, 1); updateCartUI(); }
+        function openCart() { document.getElementById('cartModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function toggleChange() { document.getElementById('changeValue').className = document.getElementById('paymentMethod').value === 'dinheiro' ? '' : 'hidden'; }
+
+        function processCheckout() {
+            const hasDrink = cart.some(i => i.isDrink || i.isCombo);
+            const subtotal = cart.reduce((acc, i) => acc + i.price, 0);
+            if (!hasDrink && subtotal < FREE_SHIPPING && (FREE_SHIPPING - subtotal) <= 7) {
+                closeModal('cartModal');
+                document.getElementById('upsellModal').classList.add('active');
+            } else {
+                finishOrder();
+            }
+        }
+
+        function addUpsell() {
+            addToCart({ name: "Coca Cola Lata", price: 7.00, isDrink: true, options: { variant: 'Normal' } });
+            closeModal('upsellModal');
+            openCart();
+        }
+
+        function finishOrder() {
+            const name = document.getElementById('clientName').value;
+            const addr = document.getElementById('clientAddress').value;
+            if (!name || !addr) { alert("Informe Nome e Endereço!"); return; }
+
+            let total = 0;
+            let msg = `*PEDIDO DUE LOVES*\n\n*Cliente:* ${name}\n*Endereço:* ${addr}\n\n*ITENS:*\n`;
+            cart.forEach(i => {
+                total += i.price;
+                msg += `• ${i.name}`;
+                if (i.isCombo) msg += ` (Bolo: ${i.options.cake}, Refri: ${i.options.variant})`;
+                msg += `\n`;
+            });
+            const delivery = total >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
+            msg += `\n*Total:* R$ ${(total + delivery).toFixed(2)}\n*Pagamento:* ${document.getElementById('paymentMethod').value}`;
+            window.open(`https://wa.me/5544997161637?text=${encodeURIComponent(msg)}`);
+        }
+
+        renderMenu();
+    </script>
+</body>
+</html>
