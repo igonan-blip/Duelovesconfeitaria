@@ -20,7 +20,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 100px; }
 
-        /* HEADER & BANNER */
         header {
             background-color: var(--primary); color: var(--secondary);
             padding: 15px 20px; position: sticky; top: 0; z-index: 100;
@@ -31,7 +30,6 @@
         .banner-container { width: 100%; background-color: var(--primary); display: flex; justify-content: center; }
         .banner-img { width: 100%; max-width: 600px; display: block; border-bottom: 3px solid var(--secondary); }
 
-        /* ICONE CARRINHO TOP */
         .cart-icon-top { position: relative; cursor: pointer; font-size: 1.5rem; }
         .cart-count {
             position: absolute; top: -8px; right: -8px;
@@ -40,7 +38,6 @@
             width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* CATEGORIAS E PRODUTOS */
         .category-title {
             color: var(--primary); font-size: 1.2rem; margin: 25px 15px 10px;
             border-bottom: 2px solid var(--secondary); display: inline-block; padding-bottom: 5px;
@@ -65,12 +62,10 @@
 
         .add-btn { background-color: var(--primary); color: var(--secondary); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
 
-        /* MODAIS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: end; }
         .modal.active { display: flex; }
         .modal-content { background: var(--white); width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; }
 
-        /* SELEÇÃO */
         .option-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
         .counter-controls { display: flex; align-items: center; gap: 15px; }
         .counter-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary); background: #f0f0f0; color: var(--primary); cursor: pointer; font-weight: bold; }
@@ -79,7 +74,6 @@
         .radio-label { flex: 1; border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
         .radio-label.selected { background-color: var(--primary); color: var(--secondary); font-weight: bold; border-color: var(--primary); }
 
-        /* FOOTER CARRINHO */
         .sticky-footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--primary); color: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1500; cursor: pointer; }
         .shipping-container { margin: 15px 0; text-align: center; }
         .shipping-bar-bg { background: #eee; height: 10px; border-radius: 10px; overflow: hidden; margin-top: 8px; }
@@ -134,7 +128,7 @@
             <div id="cartItemsContainer" style="margin-top: 15px;"></div>
             <div id="checkoutForm" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
                 <input type="text" id="clientName" placeholder="Seu Nome" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
-                <textarea id="clientAddress" placeholder="Endereço Completo" rows="2" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                <textarea id="clientAddress" placeholder="Endereço Completo (Rua, Nº, Bairro)" rows="2" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
                 <select id="paymentMethod" onchange="toggleChange()" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
                     <option value="pix">PIX</option>
                     <option value="cartao">Cartão</option>
@@ -162,6 +156,7 @@
                     { id: 2, name: "Bolo Vulcão Leite Ninho", price: 20.00, desc: "Serve 2 pessoas" },
                     { id: 3, name: "Bolo Vulcão Dois Amores", price: 20.00, desc: "Serve 2 pessoas" },
                     { id: 4, name: "Bolo Vulcão Ninho c/ Nutella", price: 20.00, desc: "Serve 2 pessoas" },
+                    { id: 44, name: "Bolo Vulcão Ninho c/ Morango", price: 20.00, desc: "Serve 2 pessoas" },
                     { id: 5, name: "Bolo Vulcão Cenoura c/ Brigadeiro", price: 20.00, desc: "Serve 2 pessoas", isBestSeller: true }
                 ]
             },
@@ -227,7 +222,12 @@
                 body.innerHTML = `
                     <p>Sabor do Bolo:</p>
                     <select id="selCake" style="width:100%; padding:10px; margin:10px 0;">
-                        <option>Brigadeiro</option><option>Leite Ninho</option><option>Dois Amores</option><option>Ninho c/ Nutella</option><option>Cenoura c/ Brigadeiro</option>
+                        <option>Brigadeiro</option>
+                        <option>Leite Ninho</option>
+                        <option>Dois Amores</option>
+                        <option>Ninho c/ Nutella</option>
+                        <option>Ninho c/ Morango</option>
+                        <option>Cenoura c/ Brigadeiro</option>
                     </select>
                     <p>Escolha 12 Salgados:</p>${renderFlavors()}
                     <p style="margin-top:15px;">Tipo do Refri:</p>
@@ -275,7 +275,7 @@
             if (tempItem.isKit || tempItem.isCombo) {
                 const limit = tempItem.limit || 12;
                 const total = Object.values(tempItem.options.flavors).reduce((a, b) => a + b, 0);
-                if (total !== limit) { alert(`Selecione ${limit} salgados!`); return; }
+                if (total !== limit) { alert(`Selecione exatamente ${limit} salgados!`); return; }
                 if (tempItem.isCombo) tempItem.options.cake = document.getElementById('selCake').value;
             }
             addToCart(tempItem); closeModal('optionsModal');
@@ -307,18 +307,49 @@
         function finishOrder() {
             const name = document.getElementById('clientName').value;
             const addr = document.getElementById('clientAddress').value;
-            if (!name || !addr) { alert("Preencha nome e endereço!"); return; }
+            if (!name || !addr) { alert("Preencha seu nome e endereço para finalizar!"); return; }
+
             let total = 0;
-            let msg = `*NOVO PEDIDO - DUE LOVES*\n\n*Cliente:* ${name}\n*Endereço:* ${addr}\n\n*ITENS:*\n`;
+            let msg = `*NOVO PEDIDO - DUE LOVES*\n\n`;
+            msg += `*Cliente:* ${name}\n`;
+            msg += `*Endereço:* ${addr}\n\n`;
+            msg += `*ITENS DO PEDIDO:*\n`;
+
             cart.forEach(i => {
                 total += i.price;
-                msg += `• ${i.name}`;
-                if (i.isCombo) msg += ` (Bolo: ${i.options.cake}, Refri: ${i.options.variant})`;
-                else if (i.isDrink) msg += ` (${i.options.variant})`;
+                msg += `✅ *${i.name}*\n`;
+                
+                // Detalhes de sabores (Combo ou Kit)
+                if (i.isKit || i.isCombo) {
+                    const flavs = Object.entries(i.options.flavors)
+                                    .filter(([_, qty]) => qty > 0)
+                                    .map(([s, qty]) => `${qty}x ${s}`)
+                                    .join(', ');
+                    if (i.isCombo) {
+                        msg += `   - Bolo: ${i.options.cake}\n`;
+                        msg += `   - Salgados: ${flavs}\n`;
+                        msg += `   - Refri: ${i.options.variant}\n`;
+                    } else {
+                        msg += `   - Sabores: ${flavs}\n`;
+                    }
+                } 
+                // Detalhes de bebida simples
+                else if (i.isDrink) {
+                    msg += `   - Tipo: ${i.options.variant}\n`;
+                }
                 msg += `\n`;
             });
+
             const delivery = total >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
-            msg += `\n*TOTAL:* R$ ${(total + delivery).toFixed(2)}\n*Pagamento:* ${document.getElementById('paymentMethod').value}`;
+            msg += `----------------------------\n`;
+            msg += `*Subtotal:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+            msg += `*Frete:* ${delivery === 0 ? 'GRÁTIS' : 'R$ 5,00'}\n`;
+            msg += `*TOTAL:* R$ ${(total + delivery).toFixed(2).replace('.', ',')}\n`;
+            msg += `*Pagamento:* ${document.getElementById('paymentMethod').value.toUpperCase()}`;
+            
+            const change = document.getElementById('changeValue').value;
+            if (change) msg += ` (Troco para ${change})`;
+
             window.open(`https://wa.me/5544997161637?text=${encodeURIComponent(msg)}`);
         }
 
